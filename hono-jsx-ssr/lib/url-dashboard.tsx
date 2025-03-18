@@ -94,7 +94,7 @@ const UrlList = async ({ page }: { page: number }) => {
         </thead>
         <tbody>
           {result.items.map((url: any) => (
-            <tr key={url.id}>
+            <tr key={url.slug}>
               <td>{url.name}</td>
               <td>
                 <a

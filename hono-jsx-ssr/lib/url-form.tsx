@@ -7,7 +7,7 @@ import { randomString } from "teenybase";
 import { HTTPException } from "hono/http-exception";
 
 export function UrlFormCard(props: FormProps) {
-  const isEdit = props.data?.id !== undefined;
+  const isEdit = !!props.data?.slug && props.data.slug !== "";
 
   return (
     <article style={{ maxWidth: "800px", margin: "0 auto", padding: "2rem" }}>
@@ -38,8 +38,9 @@ export function UrlFormCard(props: FormProps) {
 
         <FormInput
           name="slug"
-          placeholder="custom-slug (leave empty to generate automatically)"
-          label="Custom Slug (Optional)"
+          placeholder="your-custom-slug"
+          label="URL Slug"
+          required
           data={props.data}
           errors={props.errors}
         />
@@ -51,7 +52,11 @@ export function UrlFormCard(props: FormProps) {
           value={props.data?.created_by || ""}
         />
         {isEdit && (
-          <input type="disabled" name="slug" value={props.data?.slug || ""} />
+          <input
+            type="hidden"
+            name="original_slug"
+            value={props.data?.slug || ""}
+          />
         )}
 
         <hr />
@@ -71,10 +76,7 @@ export function UrlFormCard(props: FormProps) {
 export const zCreateUrl = z.object({
   name: z.string().min(1, "Name is required"),
   link: z.string().url("Please enter a valid URL").min(1, "URL is required"),
-  slug: z
-    .string()
-    .optional()
-    .transform((val) => val || randomString(6)),
+  slug: z.string().min(1, "Slug is required"),
   created_by: z.string(),
 });
 
@@ -96,7 +98,7 @@ export const createUrlRoute = (c: Context<$Env>) =>
       // Create the URL
       const result = await db.table("urls").insert({
         values: urlData,
-        returning: "slug",
+        returning: "id",
       });
 
       if (!result.length) {
@@ -143,6 +145,7 @@ export const zEditUrl = z.object({
   name: z.string().min(1, "Name is required"),
   link: z.string().url("Please enter a valid URL").min(1, "URL is required"),
   slug: z.string().min(1, "Slug is required"),
+  original_slug: z.string(),
   created_by: z.string(),
 });
 
@@ -167,7 +170,7 @@ export const editUrlRoute = async (c: Context<$Env>, slug: string) =>
           link: data.link,
           slug: data.slug,
         },
-        where: `slug = "${data.slug}"`,
+        where: `slug = "${data.original_slug}"`,
         returning: "slug",
       });
 
