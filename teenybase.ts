@@ -4,6 +4,7 @@ import {
   sqlValue,
   TableAuthExtensionData,
   TableData,
+  TableFieldUsageRecord,
   TableRulesExtensionData,
 } from "teenybase";
 import {
@@ -74,7 +75,14 @@ const urlsTable: TableData = {
   name: "urls",
   autoSetUid: true, // automatically set the uid to a random uuidv4
   fields: [
-    ...baseFields,
+    // {
+    //   name: "id",
+    //   primary: true,
+    //   type: "text",
+    //   sqlType: "text",
+    //   notNull: true,
+    //   noUpdate: true,
+    // },
     { name: "name", type: "text", sqlType: "text", notNull: true },
     { name: "link", type: "text", sqlType: "text", notNull: true },
     {
@@ -83,7 +91,7 @@ const urlsTable: TableData = {
       sqlType: "text",
       unique: true,
       notNull: true,
-      usage: "record_uid",
+      usage: TableFieldUsageRecord.record_uid,
     },
     {
       name: "views",
@@ -99,11 +107,31 @@ const urlsTable: TableData = {
       notNull: true,
       foreignKey: { table: "users", column: "id" },
     },
+
+    {
+      name: "created",
+      type: "date",
+      sqlType: "timestamp",
+      default: sql`CURRENT_TIMESTAMP`,
+      notNull: true,
+      usage: TableFieldUsageRecord.record_created,
+      noInsert: true,
+      noUpdate: true,
+    },
+    {
+      name: "updated",
+      type: "date",
+      sqlType: "timestamp",
+      default: sql`CURRENT_TIMESTAMP`,
+      notNull: true,
+      usage: TableFieldUsageRecord.record_updated,
+      noInsert: true,
+      noUpdate: true,
+    },
   ],
   indexes: [
     { fields: "created_by" },
     { fields: "slug COLLATE NOCASE", unique: true },
-    { fields: "views" },
   ],
   extensions: [
     {
