@@ -160,7 +160,7 @@ const urlsTable: TableData = {
 export default {
   tables: [userTable, urlsTable],
   appName: "Teeny URL Shortener",
-  appUrl: "https://urls.teenybase.com",
+  appUrl: "https://url-shortener.teenybase.com",
   jwtSecret: "$JWT_SECRET_MAIN",
   email: {
     from: "Sender Name <noreply@example.com>",
