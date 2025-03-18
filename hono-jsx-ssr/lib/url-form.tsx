@@ -38,9 +38,8 @@ export function UrlFormCard(props: FormProps) {
 
         <FormInput
           name="slug"
-          placeholder="your-custom-slug"
+          placeholder="your-custom-slug (leave empty for random)"
           label="URL Slug"
-          required
           data={props.data}
           errors={props.errors}
         />
@@ -76,18 +75,36 @@ export function UrlFormCard(props: FormProps) {
 export const zCreateUrl = z.object({
   name: z.string().min(1, "Name is required"),
   link: z.string().url("Please enter a valid URL").min(1, "URL is required"),
-  slug: z.string().min(1, "Slug is required"),
-  created_by: z.string(),
+  slug: z.string().optional().default(""),
+  created_by: z.string().optional().default(""),
 });
 
-export const createUrlRoute = (c: Context<$Env>) =>
+export const InitUrlFormCard = async (c: Context<$Env>) => {
+  const db = c.get("$db");
+  if (!db.auth.uid) return c.redirect("/login");
+
+  return async (props: FormProps) => {
+    // Initialize with user ID for new forms
+    if (!props.data) {
+      props.data = { created_by: db.auth.uid };
+    }
+    return <UrlFormCard {...props} />;
+  };
+};
+
+export const createUrlRoute = async (c: Context<$Env>) =>
   formRoute(
     c,
     zCreateUrl,
-    UrlFormCard,
+    await InitUrlFormCard(c),
     async (data) => {
       const db = c.get("$db");
       if (!db.auth.uid) return c.redirect("/login");
+
+      // Generate a random slug if not provided
+      if (!data.slug || data.slug.trim() === "") {
+        data.slug = randomString(8);
+      }
 
       // Always set the created_by to the current user
       const urlData = {
@@ -98,7 +115,7 @@ export const createUrlRoute = (c: Context<$Env>) =>
       // Create the URL
       const result = await db.table("urls").insert({
         values: urlData,
-        returning: "id",
+        returning: "slug",
       });
 
       if (!result.length) {
@@ -182,3 +199,30 @@ export const editUrlRoute = async (c: Context<$Env>, slug: string) =>
     },
     true // Require login
   );
+
+export const deleteUrlRoute = async (c: Context<$Env>, slug: string) => {
+  const db = c.get("$db");
+
+  // Check authentication
+  if (!db.auth.uid) {
+    return c.redirect("/login?error=Please login to continue");
+  }
+
+  try {
+    // Delete the URL, relying on the table rules to enforce ownership
+    const result = await db.table("urls").delete({
+      where: `slug = "${slug}"`,
+      returning: "slug",
+    });
+
+    if (!result.length) {
+      // If nothing was deleted, it might be because the user doesn't own the URL
+      throw new Error("Unable to delete URL. You may not have permission.");
+    }
+
+    return c.redirect("/?deleted=true");
+  } catch (error) {
+    console.error("Error deleting URL:", error);
+    return c.redirect(`/?error=${encodeURIComponent("Failed to delete URL")}`);
+  }
+};

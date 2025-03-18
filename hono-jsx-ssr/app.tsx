@@ -5,7 +5,7 @@ import { loginRoute, registerRoute } from "./lib/auth";
 import { getLogin, logout } from "./auth";
 import { BaseLayout } from "./lib/page";
 import { z } from "zod";
-import { createUrlRoute, editUrlRoute } from "./lib/url-form";
+import { createUrlRoute, deleteUrlRoute, editUrlRoute } from "./lib/url-form";
 import { UrlDashboard } from "./lib/url-dashboard";
 
 const app = new Hono<$Env>();
@@ -53,6 +53,9 @@ app.on("get", "/logout", logout);
 app.on(["get", "post"], "/url/create", createUrlRoute);
 app.on(["get", "post"], "/url/edit/:slug", (c) =>
   editUrlRoute(c, c.req.param("slug"))
+);
+app.on("post", "/url/delete/:slug", (c) =>
+  deleteUrlRoute(c, c.req.param("slug"))
 );
 
 export const honoJSXAppSSR = app;

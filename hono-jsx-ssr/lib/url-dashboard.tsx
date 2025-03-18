@@ -133,16 +133,11 @@ const UrlList = async ({ page }: { page: number }) => {
                     Edit
                   </a>
                   <form
-                    method="post"
-                    action={`/api/v1/table/urls/delete`}
                     style={{ margin: 0 }}
+                    action={`/url/delete/${url.slug}`}
+                    method="post"
+                    onsubmit="return confirm('Are you sure you want to delete this URL?')"
                   >
-                    <input
-                      type="hidden"
-                      name="where"
-                      value={`slug = "${url.slug}"`}
-                    />
-                    <input type="hidden" name="returning" value={`["slug"]`} />
                     <button type="submit" className="contrast">
                       Delete
                     </button>
