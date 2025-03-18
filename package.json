@@ -1,7 +1,7 @@
 {
-  "name": "teeny-notes-sample",
+  "name": "teeny-urls-sample",
   "version": "0.0.1",
-  "description": "A sample notes app built with teenybase and multiple frontends",
+  "description": "A sample url shortener built with teenybase and multiple frontends",
   "type": "module",
   "private": true,
   "scripts": {
@@ -17,7 +17,6 @@
     "list-users": "teeny exec --local users/select?select=email",
     "list-notes": "teeny exec --local notes/select?select=*",
     "exec-sql": "npx wrangler d1 execute PRIMARY_DB --local --persist-to \"./.local-persist\" --json --command \"select * from sqlite_schema\"",
-
     "deploy": "teeny deploy --migrate --remote",
     "secrets-upload": "teeny secrets --remote --upload",
     "build": "teeny build --remote",
@@ -29,7 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.5.0",
-    "teenybase": "0.0.3",
+    "teenybase": "file:../teenybase",
     "wrangler": "^3.91.0",
     "@cloudflare/workers-types": "^4.20240821.1",
     "hono": "4.6.12",
@@ -37,8 +36,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/repalash/teeny-notes-sample.git"
+    "url": "https://github.com/rush-skills/teeny-urls-sample.git"
   },
-  "author": "repalash <palash@shaders.app>",
+  "author": "Ankur Singh <hello@anks.in>",
   "license": "Apache-2.0"
 }
