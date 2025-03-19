@@ -14,12 +14,12 @@ export function Navbar(props: { user?: string }) {
       </ul>
       {props.user && (
         <ul>
-          <li>
+          {/* <li>
             <a href="/">My URLs</a>
-          </li>
-          <li>
+          </li> */}
+          {/* <li>
             <a href="/url/create">Create URL</a>
-          </li>
+          </li> */}
         </ul>
       )}
       <ul>

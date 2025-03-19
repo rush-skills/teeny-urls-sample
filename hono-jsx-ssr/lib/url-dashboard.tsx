@@ -81,73 +81,155 @@ const UrlList = async ({ page }: { page: number }) => {
 
   return (
     <div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Short URL</th>
-            <th>Original URL</th>
-            <th>Views</th>
-            <th>Created</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {result.items.map((url: any) => (
-            <tr key={url.slug}>
-              <td>{url.name}</td>
-              <td>
+      <style>
+        {`
+          .url-card-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+          }
+
+          @media (min-width: 768px) {
+            .url-card-grid {
+              grid-template-columns: repeat(2, 1fr);
+            }
+          }
+
+          @media (min-width: 1200px) {
+            .url-card-grid {
+              grid-template-columns: repeat(3, 1fr);
+            }
+          }
+
+          .url-card {
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            border-radius: var(--pico-border-radius);
+            border: var(--pico-border-width) solid var(--pico-form-element-border-color);
+            background-color: var(--pico-card-background-color);
+            height: 100%;
+          }
+
+          .url-card-header {
+            margin-bottom: 1rem;
+          }
+
+          .url-card-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .url-card-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+
+          .url-card-stat {
+            display: flex;
+            font-size: 0.875rem;
+            flex-direction: column;
+          }
+
+          .url-card-stat strong {
+            margin-bottom: 0.25rem;
+          }
+
+          .url-card-link {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            word-break: break-all;
+          }
+
+          .url-card-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: var(--pico-border-width) solid var(--pico-form-element-border-color);
+          }
+
+          .url-card-footer a,
+          .url-card-footer button {
+            margin: 0;
+            width: 100%;
+            text-align: center;
+          }
+        `}
+      </style>
+
+      <div className="url-card-grid">
+        {result.items.map((url: any) => (
+          <div key={url.slug} className="url-card">
+            <div className="url-card-header">
+              <h3 className="url-card-title">{url.name}</h3>
+            </div>
+
+            <div className="url-card-content">
+              <div className="url-card-stat">
+                <strong>Short URL:</strong>
                 <a
                   href={`${baseUrl}/l/${url.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="url-card-link"
                 >
                   {`${baseUrl}/l/${url.slug}`}
                 </a>
-              </td>
-              <td>
+              </div>
+
+              <div className="url-card-stat">
+                <strong>Original URL:</strong>
                 <a
                   href={url.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    maxWidth: "200px",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    display: "inline-block",
-                  }}
+                  className="url-card-link"
                 >
                   {url.link}
                 </a>
-              </td>
-              <td>{url.views}</td>
-              <td>{new Date(url.created).toLocaleDateString()}</td>
-              <td>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <a
-                    href={`/url/edit/${url.slug}`}
-                    role="button"
-                    className="secondary"
-                  >
-                    Edit
-                  </a>
-                  <form
-                    style={{ margin: 0 }}
-                    action={`/url/delete/${url.slug}`}
-                    method="post"
-                    onsubmit="return confirm('Are you sure you want to delete this URL?')"
-                  >
-                    <button type="submit" className="contrast">
-                      Delete
-                    </button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+
+              <div className="url-card-stat">
+                <strong>Views:</strong> {url.views}
+              </div>
+
+              <div className="url-card-stat">
+                <strong>Created:</strong>{" "}
+                {new Date(url.created).toLocaleDateString()}
+              </div>
+            </div>
+
+            <div className="url-card-footer">
+              <a
+                href={`/url/edit/${url.slug}`}
+                role="button"
+                className="secondary"
+              >
+                Edit
+              </a>
+              <form
+                style={{ margin: 0 }}
+                action={`/url/delete/${url.slug}`}
+                method="post"
+                onsubmit="return confirm('Are you sure you want to delete this URL?')"
+              >
+                <button type="submit" className="contrast">
+                  Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {totalPages > 1 && (
         <nav
